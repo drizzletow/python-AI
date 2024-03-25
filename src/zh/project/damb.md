@@ -20,7 +20,7 @@ title: AI 搬砖项目
 ### 1. 获取窗口截图
 
 刚开始我们需要先获取供训练AI所需的图片，这里需要使用一些Python的第三方库：
-[pywin32](/zh/python/pywin32.md) , numpy, opencv-python 
+[pywin32](/AI/zh/python/pywin32) , numpy, opencv-python 
 
 这里简单描述一下实现思路：先使用 pywin32 获取指定的窗口句柄，然后利用相关API获取到位图对象
 
@@ -68,11 +68,147 @@ win32gui.ReleaseDC(hwnd, target_dc)
 
 ```
 
-### 2. OpenCV图像处理
+### 2. 视频转换为图片
 
-### 3. Yolov目标检测
+在后续使用labelImg标记图片共yolov训练时，需要使用大量图片，自己截图显然太慢了，除了小部分需要特定截图外，多数图片都可以通过录屏后转换为图片即可
+
+通过 openCV 将视频转换为图片的示例：
+
+```python
+import cv2
+import os
+import time
+
+vidcap = cv2.VideoCapture(r'./video/107.mp4')
+tag = "107"
+success, image = vidcap.read()
+count = 0
+folder_count = 0
+real_num = 0
+localtime = time.localtime(time.time())   #获取当前时间
+time = time.strftime('%Y%m%d', time.localtime(time.time()))      #把获取的时间转换成"年月日格式”
+while success:
+    # 每xx帧保留一张图片
+    if count % 50 == 0:
+        folder_name = time + tag + "-%03d" % folder_count
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+        cv2.imwrite(folder_name + "/" + time + tag + "%05d.jpg" % count, image)  # save frame as JPEG file
+        # 每xxx张图片新建一个目录
+        real_num += 1
+        if real_num % 500 == 0:
+            folder_count += 1
+    success, image = vidcap.read()
+    count += 1
+print("count: ", count)
+print("real: ", real_num)
+```
+
+### 3. LabelImg图像标记
+
+先安装 labelimg :
+```bash
+pip install labelimg -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+直接在命令行启动即可：
+```bash
+labelimg
+```
+
+常用快捷键：
+1. 常用操作
+
+- 创建矩形 w
+- 保存 Ctrl + s
+- 下一张 d
+- 上一张 a
+- Ctrl + z：撤销上一次操作
+- Ctrl + y：重做上一次撤销操作
+
+2. 标注工具选择
+
+labelimg支持多种标注工具，包括矩形、圆形、线条和点等。使用快捷键可以方便地切换标注工具。
+
+- r：选择矩形工具
+- c：选择圆形工具
+- l：选择线条工具
+- p：选择点工具
+
+3. 标注形状调整
+
+对于不同的标注形状，我们可以使用不同的快捷键进行调整。
+
+- Alt + ↑：矩形或圆形高度增加
+- Alt + ↓：矩形或圆形高度减少
+- Alt + →：矩形或圆形宽度增加
+- Alt + ←：矩形或圆形宽度减少
+- w：线条宽度增加
+- s：线条宽度减少
+
+4. 标注边缘微调
+
+当我们标注完一个物体后，我们可以使用快捷键微调标注的边缘，以精确地覆盖物体。
+
+- e：选中当前标注框，并进入微调模式
+- w：上移
+- s：下移
+- a：左移
+- d：右移
+- i：上调整大小
+- k：下调整大小
+- j：左调整大小
+- l：右调整大小
+
+
+### 4. Yolov目标检测
+
 
 ## 三 串口通信及自动操作
 
+### 1. CH9329
+CH9329 芯片是由沁恒生产的一种串口转HID键盘鼠标芯片。
+它可以将上位机发送的串口数据转换为标准的USB键鼠设备信号，
+并将其发送给下位机，从而实现硬件级别的键鼠模拟。
+
+官网信息：
+
+https://special.wch.cn/zh_cn/USBChips/#/
+
+https://www.wch.cn/products/CH9329.html
+
+
+Github参考：
+
+https://github.com/beijixiaohu/CH9329_COMM
+
+
+```bash
+pip install ch9329Comm -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pyserial  -i https://pypi.tuna.tsinghua.edu.cn/simple 
+pip install pyautogui -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+
 
 ## 四 相关特殊功能实现
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

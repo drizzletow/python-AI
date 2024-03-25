@@ -2,7 +2,6 @@ import { navbar } from "vuepress-theme-hope";
 
 export const enNavbar = navbar([
   "/",
-  { text: "Python", icon: "python", link: "/python/" },
   { text: "Machine", icon: "proxy", link: "/machine/" },
   { text: "Project", icon: "app", link: "/project/" },
   {
